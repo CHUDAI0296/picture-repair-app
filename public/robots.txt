@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Block access to API endpoints
+Disallow: /api/
+
+# Allow search engines to crawl images
+Allow: /assets/
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.gif
+Allow: /*.webp
