@@ -19,6 +19,8 @@ interface UploadedImage {
 function App() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  // 移除API密钥相关状态，因为现在使用后端API
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -61,7 +63,7 @@ function App() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files) as File[];
-      handleFiles(files);
+    handleFiles(files);
     }
   };
 
@@ -69,37 +71,46 @@ function App() {
     setImages((prev: UploadedImage[]) => prev.map((img: UploadedImage) => 
       img.id === id ? { ...img, status: 'processing' } : img
     ));
+    setIsProcessing(true);
 
     const image = images.find((img: UploadedImage) => img.id === id);
     if (!image) return;
 
     try {
-      // Create FormData to send image file
-      const formData = new FormData();
-      formData.append('image', image.file);
+      // 将图片转换为base64
+      const base64Image = image.preview.split(',')[1];
       
-      // Call backend API for image processing
-      const response = await fetch('/api/repair-image', {
+      // 调用我们的Vercel API端点
+      const response = await fetch('/api/openrouter', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageBase64: base64Image,
+          prompt: 'Restore this photo, fix any damage, enhance colors, and improve quality.'
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(`API error: ${response.statusText}, ${JSON.stringify(errorData)}`);
       }
 
       const data = await response.json();
       
-      // Backend returns processed image URL or base64
-      const processedImageUrl = data.processedImageUrl || data.processedImage;
-      
-      setImages((prev: UploadedImage[]) => prev.map((img: UploadedImage) => 
-        img.id === id ? { 
-          ...img, 
-          status: 'completed',
-          processed: processedImageUrl
-        } : img
-      ));
+      // 处理返回的数据
+      if (data.success && data.data) {
+        setImages((prev: UploadedImage[]) => prev.map((img: UploadedImage) => 
+          img.id === id ? { 
+            ...img, 
+            status: 'completed',
+            processed: data.data // 这里假设API返回的是base64图像数据
+          } : img
+        ));
+      } else {
+        throw new Error('Invalid API response');
+      }
     } catch (error) {
       console.error('Error processing image:', error);
       setImages((prev: UploadedImage[]) => prev.map((img: UploadedImage) => 
@@ -109,6 +120,8 @@ function App() {
           error: error instanceof Error ? error.message : 'Unknown error'
         } : img
       ));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -123,14 +136,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Animated Background */}
+      {/* 背景动画 */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-cyan-900/20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      {/* Header */}
+      {/* 头部 */}
       <header className="relative z-50 bg-black/80 backdrop-blur-md border-b border-pink-500/30 shadow-lg shadow-pink-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -142,13 +155,11 @@ function App() {
                 Picture Repair App
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <nav className="hidden md:flex space-x-8">
-                <a href="#features" className="text-gray-300 hover:text-pink-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]">Features</a>
-                <a href="#gallery" className="text-gray-300 hover:text-cyan-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">Gallery</a>
-                <a href="#pricing" className="text-gray-300 hover:text-purple-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]">Pricing</a>
-              </nav>
-            </div>
+            <nav className="hidden md:flex space-x-8">
+              <a href="#features" className="text-gray-300 hover:text-pink-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]">Features</a>
+              <a href="#gallery" className="text-gray-300 hover:text-cyan-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">Gallery</a>
+              <a href="#pricing" className="text-gray-300 hover:text-purple-400 transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]">Pricing</a>
+            </nav>
           </div>
         </div>
       </header>
@@ -436,7 +447,13 @@ function App() {
         </div>
       </footer>
 
-
+      {/* 全局加载状态 */}
+      {isProcessing && (
+        <div className="fixed bottom-4 right-4 bg-black/70 backdrop-blur-md border border-pink-500/50 rounded-lg p-3 text-white flex items-center shadow-lg shadow-pink-500/20 z-50">
+          <Loader2 className="w-5 h-5 animate-spin mr-2 text-pink-400" />
+          <span>Processing image...</span>
+        </div>
+      )}
     </div>
   );
 }

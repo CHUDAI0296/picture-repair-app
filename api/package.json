@@ -1,0 +1,9 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "API functions for Picture Repair App",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+} 
