@@ -1,8 +1,8 @@
 // OpenRouter API处理函数 - Vercel Serverless Function
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 // Vercel Serverless Function处理程序
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // 设置CORS头
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
