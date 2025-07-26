@@ -32,40 +32,57 @@ module.exports = async function handler(req, res) {
 
     console.log('Processing image with OpenRouter API...');
 
-    // 调用OpenRouter API
+    // 调用OpenRouter API - 使用正确的格式
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.VITE_OPENROUTER_API_KEY}`,
-        'HTTP-Referer': req.headers.referer || 'https://your-website.com',
+        'HTTP-Referer': req.headers.referer || 'https://picturerepairapp.click',
         'X-Title': 'Picture Repair App'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3-opus', // 或其他支持图像处理的模型
+        model: 'openai/gpt-4o', // 使用支持图像的模型
         messages: [
           {
             role: 'system',
-            content: 'You are an expert in photo restoration. Restore the provided image to fix damage, enhance colors, and improve quality. Return ONLY the restored image without any text.'
+            content: 'You are an expert in photo restoration. Your task is to restore and enhance the provided image. Return ONLY the restored image as a base64 encoded string, without any text explanation.'
           },
           {
             role: 'user',
             content: [
-              { type: 'text', text: prompt },
-              { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
+              { 
+                type: 'text', 
+                text: prompt 
+              },
+              { 
+                type: 'image_url', 
+                image_url: { 
+                  url: `data:image/jpeg;base64,${imageBase64}`,
+                  detail: 'high'
+                } 
+              }
             ]
           }
-        ]
+        ],
+        max_tokens: 4096,
+        temperature: 0.7
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('OpenRouter API Error Response:', errorData);
       throw new Error(`API error: ${response.statusText}, ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
     console.log('OpenRouter API response received');
+    
+    // 检查响应格式
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid API response format');
+    }
     
     // 返回处理后的结果
     return res.status(200).json({ 
