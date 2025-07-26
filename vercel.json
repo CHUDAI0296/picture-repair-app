@@ -2,7 +2,15 @@
   "version": 2,
   "builds": [
     { 
-      "src": "api/*.js", 
+      "src": "api/test.js", 
+      "use": "@vercel/node" 
+    },
+    { 
+      "src": "api/openrouter.js", 
+      "use": "@vercel/node" 
+    },
+    { 
+      "src": "api/repair-image.js", 
       "use": "@vercel/node" 
     },
     { 
@@ -12,7 +20,9 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/api/test", "dest": "/api/test.js" },
+    { "src": "/api/openrouter", "dest": "/api/openrouter.js" },
+    { "src": "/api/repair-image", "dest": "/api/repair-image.js" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 } 
