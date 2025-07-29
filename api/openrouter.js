@@ -66,10 +66,15 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
     console.log('OpenRouter API response received');
+    console.log('Response data structure:', JSON.stringify(data, null, 2));
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid response structure:', data);
       throw new Error('Invalid API response format');
     }
+    
+    console.log('Message content type:', typeof data.choices[0].message.content);
+    console.log('Message content length:', data.choices[0].message.content ? data.choices[0].message.content.length : 'null');
     
     return res.status(200).json({ 
       success: true, 
