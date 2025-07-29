@@ -171,7 +171,7 @@ function App() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-pink-500/50">
-                <Zap className="w-6 h-6 text-white" />
+                <img src="/logo.svg" alt="Logo" className="w-6 h-6" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 Picture Repair App
