@@ -453,20 +453,16 @@ function App() {
                 className="bg-[#23293a] rounded-2xl shadow-lg p-6 flex flex-col items-center relative group border-2 border-transparent hover:border-pink-500 transition-all duration-300"
               >
                 <div className="relative w-full h-64 flex items-center justify-center overflow-hidden mb-4">
-                  <CompareImage
-                    leftImage={img.before}
-                    rightImage={img.after}
-                    leftImageLabel="Damaged"
-                    rightImageLabel="Restored"
-                    sliderLineColor="#ec4899"
-                    sliderPositionPercentage={0.5}
-                    aspectRatio="wider"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: '0.75rem',
-                      background: '#181c2a'
-                    }}
+                  {/* 悬停切换对比图 */}
+                  <img
+                    src={img.before}
+                    alt="Damaged"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl transition-opacity duration-500 group-hover:opacity-0"
+                  />
+                  <img
+                    src={img.after}
+                    alt="Restored"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                   />
                 </div>
                 <div className="text-lg text-white font-semibold mb-2">{img.title}</div>
