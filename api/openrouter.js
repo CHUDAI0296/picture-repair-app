@@ -39,12 +39,8 @@ module.exports = async function handler(req, res) {
         'X-Title': 'Picture Repair App'
       },
       body: JSON.stringify({
-        model: 'openai/chatgpt-4o-latest',
+        model: 'anthropic/claude-3-5-sonnet',
         messages: [
-          {
-            role: 'system',
-            content: 'You are an expert in photo restoration. Your task is to restore and enhance the provided image. Return ONLY the restored image as a base64 encoded string, without any text explanation.'
-          },
           {
             role: 'user',
             content: [
@@ -53,8 +49,7 @@ module.exports = async function handler(req, res) {
             ]
           }
         ],
-        max_tokens: 4096,
-        temperature: 0.7
+        max_tokens: 4096
       })
     });
 
