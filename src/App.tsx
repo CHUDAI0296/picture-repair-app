@@ -101,13 +101,23 @@ function App() {
       
       // 处理返回的数据
       if (data.success && data.data) {
+        // 确保返回的数据是完整的base64图像URL
+        const processedImageData = data.data.startsWith('data:') 
+          ? data.data 
+          : `data:image/jpeg;base64,${data.data}`;
+        
         setImages((prev: UploadedImage[]) => prev.map((img: UploadedImage) => 
           img.id === id ? { 
             ...img, 
             status: 'completed',
-            processed: data.data // 这里假设API返回的是base64图像数据
+            processed: processedImageData
           } : img
         ));
+        
+        // 如果有AI分析结果，可以在这里处理
+        if (data.analysis) {
+          console.log('AI Analysis:', data.analysis);
+        }
       } else {
         throw new Error('Invalid API response');
       }
@@ -126,9 +136,21 @@ function App() {
   };
 
   const downloadImage = (image: UploadedImage) => {
+    console.log('Downloading image:', image);
+    console.log('Processed data available:', !!image.processed);
+    console.log('Processed data type:', typeof image.processed);
+    
     const link = document.createElement('a');
-    link.href = image.processed || image.preview;
+    const imageData = image.processed || image.preview;
+    link.href = imageData;
     link.download = `restored_${image.file.name}`;
+    
+    // 添加错误处理
+    link.onerror = (e) => {
+      console.error('Download error:', e);
+      alert('Download failed. Please try again.');
+    };
+    
     link.click();
   };
 
