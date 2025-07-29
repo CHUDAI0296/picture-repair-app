@@ -16,6 +16,7 @@
     "lucide-react": "^0.344.0",
     "node-fetch": "^3.3.2",
     "react": "^18.3.1",
+    "react-compare-image": "^3.5.6",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {

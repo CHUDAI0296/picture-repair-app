@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Download, Image as ImageIcon, Sparkles, ArrowRight, Check, Loader2, Zap } from 'lucide-react';
+import CompareImage from 'react-compare-image';
 
 // 添加OpenRouter API相关接口
 interface OpenRouterResponse {
@@ -15,6 +16,24 @@ interface UploadedImage {
   status: 'uploaded' | 'processing' | 'completed' | 'error';
   error?: string;
 }
+
+const sampleImages = [
+  {
+    before: '/samples/sample1_before.jpg',
+    after: '/samples/sample1_after.jpg',
+    title: 'Sample Restoration 1'
+  },
+  {
+    before: '/samples/sample2_before.jpg',
+    after: '/samples/sample2_after.jpg',
+    title: 'Sample Restoration 2'
+  },
+  {
+    before: '/samples/sample3_before.jpg',
+    after: '/samples/sample3_after.jpg',
+    title: 'Sample Restoration 3'
+  }
+];
 
 function App() {
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -427,21 +446,34 @@ function App() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((index) => (
-              <div key={index} className="bg-black/50 backdrop-blur-sm rounded-2xl border border-cyan-500/30 shadow-lg shadow-cyan-500/20 overflow-hidden group hover:border-pink-500/50 hover:shadow-pink-500/30 transition-all duration-300">
-                <div className="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border-b border-cyan-500/20">
-                  <div className="text-center text-gray-400">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2 text-cyan-400" />
-                    <p className="text-sm">Sample Restoration {index}</p>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {sampleImages.map((img, idx) => (
+              <div
+                key={idx}
+                className="bg-[#23293a] rounded-2xl shadow-lg p-6 flex flex-col items-center relative group border-2 border-transparent hover:border-pink-500 transition-all duration-300"
+              >
+                <div className="relative w-full h-64 flex items-center justify-center overflow-hidden mb-4">
+                  <CompareImage
+                    leftImage={img.before}
+                    rightImage={img.after}
+                    leftImageLabel="Damaged"
+                    rightImageLabel="Restored"
+                    sliderLineColor="#ec4899"
+                    sliderPositionPercentage={0.5}
+                    aspectRatio="wider"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '0.75rem',
+                      background: '#181c2a'
+                    }}
+                  />
                 </div>
-                <div className="p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-400">Damaged Photo</span>
-                    <ArrowRight className="w-4 h-4 text-pink-400" />
-                    <span className="text-sm font-medium text-green-400">Restored</span>
-                  </div>
+                <div className="text-lg text-white font-semibold mb-2">{img.title}</div>
+                <div className="flex justify-between w-full px-2">
+                  <span className="text-gray-300">Damaged Photo</span>
+                  <span className="text-pink-400 mx-2">→</span>
+                  <span className="text-green-400">Restored</span>
                 </div>
               </div>
             ))}
