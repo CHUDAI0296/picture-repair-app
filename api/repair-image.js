@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
           {
             role: 'user',
             content: [
-              { type: 'text', text: prompt },
+              { type: 'text', text: `${prompt} Please analyze this image and provide a detailed description of what you see. If there are any issues with the image quality, damage, or areas that need improvement, please describe them specifically.` },
               { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'high' } }
             ]
           }
@@ -66,9 +66,13 @@ module.exports = async function handler(req, res) {
       throw new Error('Invalid API response format');
     }
     
+    const content = data.choices[0].message.content;
+    
+    // 由于Claude返回的是文本描述，我们需要返回原始图像作为"处理后的图像"
     return res.status(200).json({ 
       success: true, 
-      data: data.choices[0].message.content
+      data: imageBase64, // 暂时返回原始图像
+      analysis: content // 包含AI分析结果
     });
     
   } catch (error) {

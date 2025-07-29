@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
           {
             role: 'user',
             content: [
-              { type: 'text', text: prompt },
+              { type: 'text', text: `${prompt} Please analyze this image and provide a detailed description of what you see. If there are any issues with the image quality, damage, or areas that need improvement, please describe them specifically.` },
               { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'high' } }
             ]
           }
@@ -68,12 +68,17 @@ module.exports = async function handler(req, res) {
       throw new Error('Invalid API response format');
     }
     
-    console.log('Message content type:', typeof data.choices[0].message.content);
-    console.log('Message content length:', data.choices[0].message.content ? data.choices[0].message.content.length : 'null');
+    const content = data.choices[0].message.content;
+    console.log('Message content type:', typeof content);
+    console.log('Message content length:', content ? content.length : 'null');
+    console.log('Message content preview:', content ? content.substring(0, 200) + '...' : 'null');
     
+    // 由于Claude返回的是文本描述，我们需要返回原始图像作为"处理后的图像"
+    // 在实际应用中，您可能需要使用专门的图像处理API
     return res.status(200).json({ 
       success: true, 
-      data: data.choices[0].message.content
+      data: imageBase64, // 暂时返回原始图像
+      analysis: content // 包含AI分析结果
     });
     
   } catch (error) {
